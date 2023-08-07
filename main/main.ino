@@ -14,15 +14,28 @@ RCSwitch mySwitch = RCSwitch();
 void setup() {
   pinMode(KEYS_ANAL, INPUT_PULLUP);
   pinMode(KEYS_DIGI, INPUT);
-  attachInterrupt(digitalPinToInterrupt(KEYS_DIGI), adc, FALLING);
-  Serial.begin(115200);
+
+  // Serial.begin(115200);
+
+  // Setup RCSwitch
   mySwitch.enableTransmit(RF_TRANS);
+  mySwitch.setRepeatTransmit(6);
+
+  // disable ADC
+  ADC_Enable(0);
+
+  // Setup deep sleep (Power-down mode) and interrupt
+  attachInterrupt(digitalPinToInterrupt(KEYS_DIGI), adc, FALLING);
+  SMCR |= 1<<2; // mode 2
+  SMCR |= 1; // sleep enable
+  __asm__ __volatile__("sleep"); // inline assembly for setting to sleep
 }
 
 void loop() {}
 
 void adc() {
   if ((micros() - last_time) < 250000) return;
+  ADC_Enable(1);
   short digi = analogRead(KEYS_ANAL);
   // float anal = (float(digi)/1024) * 5;
   short epsilon = pow(2, 10);
@@ -35,7 +48,13 @@ void adc() {
     }
   }
   last_time = micros();
-  // Serial.print(keys[key]);
-  if (key == 'A' || key == 'C') sendSignaltoAll(keys_func[keys[key]], mySwitch);
-  else custom();
+  // Serial.println(keys[key]);
+  if (keys[key] == 'A' || keys[key] == 'C') sendSignaltoAll(keys_func[key], mySwitch);
+  else if (keys[key] == 'B') custom(mySwitch);
+  ADC_Enable(0);
+}
+
+void ADC_Enable(bool val) {
+  if (val) ADCSRA |= (1<<7);
+  else ADCSRA &= ~(1<<7);
 }

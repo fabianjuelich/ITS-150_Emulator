@@ -2,6 +2,6 @@
 
 unsigned long int getComm(char row, bool function, char number);
 
-void sendSignaltoAll(bool function, RCSwitch rf);
+void sendSignaltoAll(bool function, RCSwitch rc);
 
-void custom();
+void custom(RCSwitch rc);
