@@ -3,19 +3,20 @@
 
 #define KEYS_ANAL A0
 #define KEYS_DIGI 2
-#define RF_TRANS  9
+#define RF_TRANS  4
 
 char keys[] = {'A', 'B', 'C'};
-short keys_val[] = {0, 128, 292};
+short keys_val[] = {0, 150, 300};
 short keys_func[] = {1, -1, 0};
 unsigned long last_time = 0;
 RCSwitch mySwitch = RCSwitch();
 
 void setup() {
+  // Setup pins
   pinMode(KEYS_ANAL, INPUT_PULLUP);
   pinMode(KEYS_DIGI, INPUT);
 
-  // Serial.begin(115200);
+  //Serial.begin(115200);
 
   // Setup RCSwitch
   mySwitch.enableTransmit(RF_TRANS);
@@ -37,7 +38,7 @@ void adc() {
   if ((micros() - last_time) < 250000) return;
   ADC_Enable(1);
   short digi = analogRead(KEYS_ANAL);
-  // float anal = (float(digi)/1024) * 5;
+  //float anal = (float(digi)/1024) * 5;
   short epsilon = pow(2, 10);
   char key;
   for (char k=0; k<(sizeof(keys)/sizeof(char)); k++) {
@@ -48,13 +49,14 @@ void adc() {
     }
   }
   last_time = micros();
-  // Serial.println(keys[key]);
+  //Serial.println(digi);
+  //Serial.println(keys[key]);
   if (keys[key] == 'A' || keys[key] == 'C') sendSignaltoAll(keys_func[key], mySwitch);
   else if (keys[key] == 'B') custom(mySwitch);
   ADC_Enable(0);
 }
 
 void ADC_Enable(bool val) {
-  if (val) ADCSRA |= (1<<7);
+  if (val) ADCSRA |= 1<<7;
   else ADCSRA &= ~(1<<7);
 }
