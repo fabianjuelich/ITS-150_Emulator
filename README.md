@@ -1,6 +1,8 @@
 # ITS-150_Emulator
 AVR 8-bit program for controlling _Intertechno_ radio built-in switches used e.g. in window shutters
 
+![rc_remote](./Attachements/rc_remote.jpg)
+
 ## Capturing Signals
 The [__ITS-150__](https://www.funkschalter-intertechno.de/ITS-150-Funk-Handsender) remote control, I emulated, works on the __433MHz__ Frequency (RC).
 I sniffed the necessary commands with a logic analyzer and also a RF receiver.\
@@ -13,7 +15,7 @@ The __commands.cpp__ file containing those commands will not be shared for safet
 Because of the rich amount of pins and the serial port, I decided to use the __ATmega328p__ with the [__8MHz__ bootloader](https://www.arduino.cc/en/uploads/Tutorial/breadboard-1-6-x.zip) as the heart, which can be easily programmed with the help of a [FTDI friend](https://www.berrybase.de/bread-board-mates-programmer).
 
 ## RF-Transmitter
-The __XY-FST__ is a small but powerful transmitter, which I amplified with a self designed antenna.
+The __XY-FST__ is a small, but powerful transmitter, which I amplified with an antenna.
 The formula for calculating the length of the copper wire is __Lambda/4 = (speed of light/frequency)/4 = ~17cm__
 
 ## Controls
@@ -30,10 +32,9 @@ The [__RCSwitch__](https://github.com/sui77/rc-switch) library is pretty handy a
 ## Power supply
 Because of the low power consumption I wanted to use 1x __2600 mAh Li-Ion battery (18650)__, which will be charged by a __TP4056-chip__. If you like to have multiple batteries to increase the voltage, be aware to use one charging module for each, so you can put them in series. Otherwise, they can (dis-)charge one another, which would lead to different loads and ultimately batterie-damage.
 That’s why I used a __5V step up (boost) converter__, which efficiency is still good (~95%). But it’s worth mentioning, that its coil could possibly cause radio interference if not shielded well.
+Also, do not forget to include a switch to cut off the load when charging the battery.
 
-## Power consumption and battery lifetime
+## Power consumption
 ### Measurements (standby)
-Standard: 10mAh \
+Standard: 10mAh\
 Optimized (Deep sleep, ADC off): __0.03mAh__
-### Battery lifetime
-2600 / 0.03 = 86666h = ~10y (without considering active time, which can be neglected, and wear)
