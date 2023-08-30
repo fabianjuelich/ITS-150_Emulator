@@ -22,20 +22,24 @@ void setup() {
   mySwitch.enableTransmit(RF_TRANS);
   mySwitch.setRepeatTransmit(6);
 
-  // disable ADC
-  ADC_Enable(0);
+  // Setup interrupt
+  attachInterrupt(digitalPinToInterrupt(KEYS_DIGI), isr, FALLING);
+}
 
-  // Setup deep sleep (Power-down mode) and interrupt
-  attachInterrupt(digitalPinToInterrupt(KEYS_DIGI), adc, FALLING);
+void loop() {
+  /* go to sleep */
+  ADC_Enable(0); // disable ADC
+  // Setup deep sleep (Power-down mode)
   SMCR |= 1<<2; // mode 2
   SMCR |= 1; // sleep enable
   __asm__ __volatile__("sleep"); // inline assembly for setting to sleep
+  /* wakes up */
+  adc();
+  delay(500);
 }
 
-void loop() {}
-
 void adc() {
-  if ((micros() - last_time) < 250000) return;
+  if (((micros() - last_time) < 250000) && last_time != 0) return;
   ADC_Enable(1);
   short digi = analogRead(KEYS_ANAL);
   //float anal = (float(digi)/1024) * 5;
@@ -49,14 +53,17 @@ void adc() {
     }
   }
   last_time = micros();
+  //Serial.println(last_time);
   //Serial.println(digi);
   //Serial.println(keys[key]);
+  //delay(500);
   if (keys[key] == 'A' || keys[key] == 'C') sendSignaltoAll(keys_func[key], mySwitch);
   else if (keys[key] == 'B') custom(mySwitch);
-  ADC_Enable(0);
 }
 
 void ADC_Enable(bool val) {
   if (val) ADCSRA |= 1<<7;
   else ADCSRA &= ~(1<<7);
 }
+
+void isr() {}
